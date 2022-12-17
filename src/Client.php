@@ -13,6 +13,8 @@ class Client
   private $_client;
   private $_recipient;
   private $_token;
+  private $_account;
+  private $_payment;
 
   function __construct($api_key, $api_secret, $base_url)
   {
@@ -70,4 +72,5 @@ class Client
     }
     return $this->_payment;
   }
+
 }

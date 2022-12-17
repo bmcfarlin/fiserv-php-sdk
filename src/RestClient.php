@@ -8,8 +8,8 @@ class RestClient
   private $_api_key;
   private $_api_secret;
   private $_base_url;
-  private $debug = false;
-  private $curl = false;
+  private $debug = true;
+  private $curl = true;
 
   function __construct($api_key = null, $api_secret = null, $base_url = null)
   {
