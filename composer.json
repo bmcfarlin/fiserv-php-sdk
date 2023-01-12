@@ -1,7 +1,7 @@
 {
     "name": "bmcfarlin/fiserv-php-sdk",
     "description": "A PHP SDK for Fiserv",
-    "version": "1.0.7",
+    "version": "1.0.9",
     "type": "library",
     "license": "MIT",
     "authors": [
