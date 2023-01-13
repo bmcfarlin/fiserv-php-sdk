@@ -140,7 +140,8 @@ class RestClient
 
     if($this->_logger)
     {
-      $this->_logger->debug('RESPONSE', [$response]);
+      $item = json_decode($response, true);
+      $this->_logger->debug('RESPONSE', $item);
     }
 
     if($this->_logger){
@@ -276,7 +277,8 @@ class RestClient
 
     if($this->_logger)
     {
-      $this->_logger->debug('RESPONSE', [$response]);
+      $item = json_decode($response, true);
+      $this->_logger->debug('RESPONSE', $item);
     }
 
     if($this->_logger){
