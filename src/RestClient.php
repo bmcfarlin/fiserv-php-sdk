@@ -276,7 +276,7 @@ class RestClient
 
     if($this->_logger)
     {
-      $this->_logger->debug('RESPONSE', $response);
+      $this->_logger->debug('RESPONSE', [$response]);
     }
 
     if($this->_logger){
