@@ -7,6 +7,9 @@ use Fiserv\Resources\Token\TokenInterface;
 use Fiserv\Resources\Account\AccountInterface;
 use Fiserv\Resources\Payment\PaymentInterface;
 
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
 class Client
 {
 
@@ -16,9 +19,9 @@ class Client
   private $_account;
   private $_payment;
 
-  function __construct($api_key, $api_secret, $base_url)
+  function __construct($api_key, $api_secret, $base_url, $logger = null)
   {
-    $this->_client = new RestClient($api_key, $api_secret, $base_url);
+    $this->_client = new RestClient($api_key, $api_secret, $base_url, $logger);
   }
 
   function __toString()

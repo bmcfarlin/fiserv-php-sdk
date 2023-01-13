@@ -20,9 +20,21 @@
   use \phpseclib3\Crypt\Common\PrivateKey;
   use \phpseclib3\Crypt\RSA;
 
+  use Monolog\Logger;
+  use Monolog\Handler\StreamHandler;
+
   $update = false;
 
-  $client = new \Fiserv\Client(FISERV_API_KEY, FISERV_SECRET, FISERV_BASE_URL);
+  $file_path = '/var/log/logger/fiserv.log';
+  if(!is_writable($file_path)){
+    print("file $file_path is not writable\n");
+    die;
+  }
+
+  $logger = new Logger('fiserv');
+  $logger->pushHandler(new StreamHandler($file_path, Logger::DEBUG));
+
+  $client = new \Fiserv\Client(FISERV_API_KEY, FISERV_SECRET, FISERV_BASE_URL, $logger);
 
   $nonce_token = null;
   $vault_token = null;
@@ -437,14 +449,23 @@
     die;
   }
 
-  $json = json_encode($nonce_token, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-  print("NONCE_TOKEN:\n$json\n");
+  if($nonce_token)
+  {
+    $json = json_encode($nonce_token, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    print("NONCE_TOKEN:\n$json\n");
+  }
 
-  $json = json_encode($vault_token, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-  print("VAULT_TOKEN:\n$json\n");
+  if($vault_token)
+  {
+    $json = json_encode($vault_token, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    print("VAULT_TOKEN:\n$json\n");
+  }
 
-  $json = json_encode($account_token, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-  print("ACCOUNT_TOKEN:\n$json\n");
+  if($account_token)
+  {
+    $json = json_encode($account_token, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    print("ACCOUNT_TOKEN:\n$json\n");
+  }
 
 
   /************************

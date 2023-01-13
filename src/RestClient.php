@@ -2,16 +2,18 @@
 
 namespace Fiserv;
 
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
 class RestClient
 {
 
   private $_api_key;
   private $_api_secret;
   private $_base_url;
-  private $debug = false;
-  private $curl = false;
+  private $_logger;
 
-  function __construct($api_key = null, $api_secret = null, $base_url = null)
+  function __construct($api_key = null, $api_secret = null, $base_url = null, $logger = null)
   {
     if(empty($api_key))
     {
@@ -31,6 +33,7 @@ class RestClient
     $this->_api_key = $api_key;
     $this->_api_secret = $api_secret;
     $this->_base_url = $base_url;
+    $this->_logger = $logger;
   }
 
   function __toString()
@@ -47,9 +50,9 @@ class RestClient
       $url = sprintf("%s?%s", $url, http_build_query($payload));
     }
 
-    if($this->debug)
+    if($this->_logger)
     {
-      print("URL\n$url\n");
+      $this->_logger->debug('URL', [$url]);
     }
 
     $time = microtime();
@@ -62,9 +65,9 @@ class RestClient
     $epoch_timestamp = intval($epoch_timestamp);
 
     $method = 'GET';
-    if($this->debug)
+    if($this->_logger)
     {
-      print("METHOD\n$method\n");
+      $this->_logger->debug('METHOD', [$method]);
     }
 
     $client_request_id = \Ramsey\Uuid\Uuid::uuid4();
@@ -91,9 +94,9 @@ class RestClient
     }
 
     $json = json_encode($header, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    if($this->debug)
+    if($this->_logger)
     {
-      print("HEADER\n$json\n");
+      $this->_logger->debug('REQUEST HEADER', [$json]);
     }
 
     $ch = curl_init();
@@ -101,7 +104,7 @@ class RestClient
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
-    if($this->debug)
+    if($this->_logger)
     {
       curl_setopt($ch, CURLOPT_HEADER, true);
     }
@@ -110,14 +113,25 @@ class RestClient
 
     $response = curl_exec($ch);
 
+    if($this->_logger)
+    {
+      $matches = [];
+      preg_match_all('/(HTTP.*chunked)\r\n\r\n(.*)/s', $response, $matches);
+      $count = count($matches);
+      if($count == 3){
+        $this->_logger->debug('RESPONSE HEADER', [$matches[1][0]]);
+        $response = $matches[2][0];
+      }
+    }
+    
     $info = curl_getinfo($ch);
 
     $request_header = $info['request_header'];
     $request_header = trim($request_header);
     
-    if($this->debug)
+    if($this->_logger)
     {
-      print("REQUEST\n$request_header\n");
+      $this->_logger->debug('REQUEST', [$request_header]);
     }
 
     if(curl_errno($ch)){
@@ -127,12 +141,12 @@ class RestClient
     $item = json_decode($response);
     $json = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     
-    if($this->debug)
+    if($this->_logger)
     {
-      print("RESPONSE\n$json\n");
+      $this->_logger->debug('RESPONSE', [$json]);
     }
 
-    if($this->debug || $this->curl){
+    if($this->_logger){
       $cmd = null;
       $cmd .= "curl -v \\\n";
       $cmd .= sprintf("-X '%s' \\\n", $method);
@@ -141,7 +155,7 @@ class RestClient
       }
       $cmd .= sprintf("%s\n", $url);
 
-      print("CURL\n$cmd\n");
+      $this->_logger->debug('CURL', [$cmd]);
     }
 
     curl_close($ch);
@@ -153,9 +167,9 @@ class RestClient
   {
     $url = sprintf("%s%s", $this->_base_url, $path);
 
-    if($this->debug)
+    if($this->_logger)
     {
-      print("URL\n$url\n");
+      $this->_logger->debug('URL', [$url]);
     }
 
     $time = microtime();
@@ -171,22 +185,22 @@ class RestClient
 
     if($custom_request)
     {
-      if($this->debug){
-        print("CUSTOM_REQUEST\n$custom_request\n");
+      if($this->_logger){
+        $this->_logger->debug('CUSTOM_REQUEST', [$custom_request]);
       }
       $method = $custom_request;
     }
     
-    if($this->debug)
+    if($this->_logger)
     {
-      print("METHOD\n$method\n");
+      $this->_logger->debug('METHOD', [$method]);
     }
 
     $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     
-    if($this->debug)
+    if($this->_logger)
     {
-      print("PAYLOAD\n$json\n");
+      $this->_logger->debug('PAYLOAD', [$json]);
     }
 
     $payload = json_encode($payload, JSON_UNESCAPED_SLASHES);
@@ -217,9 +231,9 @@ class RestClient
 
     $json = json_encode($header, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     
-    if($this->debug)
+    if($this->_logger)
     {
-      print("HEADER\n$json\n");
+      $this->_logger->debug('HEADER', [$json]);
     }
 
     $fields = $payload;
@@ -230,7 +244,7 @@ class RestClient
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    if($this->debug){
+    if($this->_logger){
       curl_setopt($ch, CURLOPT_HEADER, true);
     }
     curl_setopt($ch, CURLINFO_HEADER_OUT, true);
@@ -242,14 +256,25 @@ class RestClient
 
     $response = curl_exec($ch);
 
+    if($this->_logger)
+    {
+      $matches = [];
+      preg_match_all('/(HTTP.*chunked)\r\n\r\n(.*)/s', $response, $matches);
+      $count = count($matches);
+      if($count == 3){
+        $this->_logger->debug('RESPONSE HEADER', [$matches[1][0]]);
+        $response = $matches[2][0];
+      }
+    }
+
     $info = curl_getinfo($ch);
 
     $request_header = $info['request_header'];
     $request_header = trim($request_header);
     
-    if($this->debug)
+    if($this->_logger)
     {
-      print("REQUEST\n$request_header\n");
+      $this->_logger->debug('REQUEST', [$request_header]);
     }
 
     if(curl_errno($ch)){
@@ -259,12 +284,12 @@ class RestClient
     $item = json_decode($response);
     $json = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     
-    if($this->debug)
+    if($this->_logger)
     {
-      print("RESPONSE\n$json\n");
+      $this->_logger->debug('RESPONSE', [$json]);
     }
 
-    if($this->debug || $this->curl){
+    if($this->_logger){
       $cmd = null;
       $cmd .= "curl -v \\\n";
       $cmd .= sprintf("-X '%s' \\\n", $method);
@@ -274,7 +299,7 @@ class RestClient
       $cmd .= sprintf("-d '%s' \\\n", $payload);
       $cmd .= sprintf("%s\n", $url);
 
-      print("CURL\n$cmd\n");
+      $this->_logger->debug('CURL', [$cmd]);
     }
 
     curl_close($ch);
