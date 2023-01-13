@@ -93,10 +93,9 @@ class RestClient
       $header[] = sprintf("%s:%s", $key, $value);
     }
 
-    $json = json_encode($header, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     if($this->_logger)
     {
-      $this->_logger->debug('REQUEST HEADER', [$json]);
+      $this->_logger->debug('REQUEST HEADER', $header);
     }
 
     $ch = curl_init();
@@ -119,8 +118,9 @@ class RestClient
       preg_match_all('/(HTTP.*chunked)\r\n\r\n(.*)/s', $response, $matches);
       $count = count($matches);
       if($count == 3){
-        $this->_logger->debug('RESPONSE HEADER', [$matches[1][0]]);
+        $response_header = $matches[1][0];
         $response = $matches[2][0];
+        $this->_logger->debug('RESPONSE HEADER', [$response_header]);
       }
     }
     
@@ -138,23 +138,19 @@ class RestClient
       $response = curl_error($ch);
     }
 
-    $item = json_decode($response);
-    $json = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    
     if($this->_logger)
     {
-      $this->_logger->debug('RESPONSE', [$json]);
+      $this->_logger->debug('RESPONSE', [$response]);
     }
 
     if($this->_logger){
       $cmd = null;
-      $cmd .= "curl -v \\\n";
-      $cmd .= sprintf("-X '%s' \\\n", $method);
+      $cmd .= "curl -v ";
+      $cmd .= sprintf("-X '%s' ", $method);
       foreach($header as $hitem){
-        $cmd .= sprintf("-H '%s' \\\n", $hitem);
+        $cmd .= sprintf("-H '%s' ", $hitem);
       }
-      $cmd .= sprintf("%s\n", $url);
-
+      $cmd .= sprintf("%s", $url);
       $this->_logger->debug('CURL', [$cmd]);
     }
 
@@ -196,11 +192,9 @@ class RestClient
       $this->_logger->debug('METHOD', [$method]);
     }
 
-    $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    
     if($this->_logger)
     {
-      $this->_logger->debug('PAYLOAD', [$json]);
+      $this->_logger->debug('PAYLOAD', $payload);
     }
 
     $payload = json_encode($payload, JSON_UNESCAPED_SLASHES);
@@ -229,11 +223,9 @@ class RestClient
       $header[] = sprintf("%s:%s", $key, $value);
     }
 
-    $json = json_encode($header, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    
     if($this->_logger)
     {
-      $this->_logger->debug('HEADER', [$json]);
+      $this->_logger->debug('HEADER', $header);
     }
 
     $fields = $payload;
@@ -262,8 +254,9 @@ class RestClient
       preg_match_all('/(HTTP.*chunked)\r\n\r\n(.*)/s', $response, $matches);
       $count = count($matches);
       if($count == 3){
-        $this->_logger->debug('RESPONSE HEADER', [$matches[1][0]]);
+        $response_header = $matches[1][0];
         $response = $matches[2][0];
+        $this->_logger->debug('RESPONSE HEADER', [$response_header]);
       }
     }
 
@@ -281,23 +274,20 @@ class RestClient
       $response = curl_error($ch);
     }
 
-    $item = json_decode($response);
-    $json = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    
     if($this->_logger)
     {
-      $this->_logger->debug('RESPONSE', [$json]);
+      $this->_logger->debug('RESPONSE', $response);
     }
 
     if($this->_logger){
       $cmd = null;
-      $cmd .= "curl -v \\\n";
-      $cmd .= sprintf("-X '%s' \\\n", $method);
+      $cmd .= "curl -v ";
+      $cmd .= sprintf("-X '%s' ", $method);
       foreach($header as $hitem){
-        $cmd .= sprintf("-H '%s' \\\n", $hitem);
+        $cmd .= sprintf("-H '%s' ", $hitem);
       }
-      $cmd .= sprintf("-d '%s' \\\n", $payload);
-      $cmd .= sprintf("%s\n", $url);
+      $cmd .= sprintf("-d '%s' ", $payload);
+      $cmd .= sprintf("%s", $url);
 
       $this->_logger->debug('CURL', [$cmd]);
     }
