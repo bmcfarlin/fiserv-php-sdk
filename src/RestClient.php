@@ -95,7 +95,7 @@ class RestClient
 
     if($this->_logger)
     {
-      $this->_logger->debug('REQUEST HEADER', $header);
+      $this->_logger->debug('REQUEST_HEADER', $header);
     }
 
     $ch = curl_init();
@@ -120,7 +120,7 @@ class RestClient
       if($count == 3){
         $response_header = $matches[1][0];
         $response = $matches[2][0];
-        $this->_logger->debug('RESPONSE HEADER', [$response_header]);
+        $this->_logger->debug('RESPONSE_HEADER', [$response_header]);
       }
     }
     
@@ -226,7 +226,7 @@ class RestClient
 
     if($this->_logger)
     {
-      $this->_logger->debug('HEADER', $header);
+      $this->_logger->debug('REQUEST_HEADER', $header);
     }
 
     $fields = $payload;
@@ -257,7 +257,7 @@ class RestClient
       if($count == 3){
         $response_header = $matches[1][0];
         $response = $matches[2][0];
-        $this->_logger->debug('RESPONSE HEADER', [$response_header]);
+        $this->_logger->debug('RESPONSE_HEADER', [$response_header]);
       }
     }
 
