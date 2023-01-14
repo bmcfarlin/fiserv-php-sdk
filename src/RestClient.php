@@ -95,7 +95,7 @@ class RestClient
 
     if($this->_logger)
     {
-      $this->_logger->debug('REQUEST_HEADER', $header);
+      $this->_logger->debug('HEADER', $header);
     }
 
     $ch = curl_init();
@@ -120,7 +120,6 @@ class RestClient
       if($count == 3){
         $response_header = $matches[1][0];
         $response = $matches[2][0];
-        $this->_logger->debug('RESPONSE_HEADER', [$response_header]);
       }
     }
     
@@ -131,7 +130,8 @@ class RestClient
     
     if($this->_logger)
     {
-      $this->_logger->debug('REQUEST', [$request_header]);
+      $this->_logger->debug('REQUEST_HEADER', [$request_header]);
+      $this->_logger->debug('RESPONSE_HEADER', [$response_header]);
     }
 
     if(curl_errno($ch)){
@@ -226,7 +226,7 @@ class RestClient
 
     if($this->_logger)
     {
-      $this->_logger->debug('REQUEST_HEADER', $header);
+      $this->_logger->debug('HEADER', $header);
     }
 
     $fields = $payload;
@@ -257,7 +257,6 @@ class RestClient
       if($count == 3){
         $response_header = $matches[1][0];
         $response = $matches[2][0];
-        $this->_logger->debug('RESPONSE_HEADER', [$response_header]);
       }
     }
 
@@ -268,7 +267,8 @@ class RestClient
     
     if($this->_logger)
     {
-      $this->_logger->debug('REQUEST', [$request_header]);
+      $this->_logger->debug('REQUEST_HEADER', [$request_header]);
+      $this->_logger->debug('RESPONSE_HEADER', [$response_header]);
     }
 
     if(curl_errno($ch)){
@@ -314,6 +314,5 @@ class RestClient
     return $this->post($path, $payload, 'DELETE');
   }
 }
-
 
 
