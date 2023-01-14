@@ -6,6 +6,7 @@ use Fiserv\Resources\Recipient\RecipientInterface;
 use Fiserv\Resources\Token\TokenInterface;
 use Fiserv\Resources\Account\AccountInterface;
 use Fiserv\Resources\Payment\PaymentInterface;
+use Fiserv\Resources\Transaction\TransactionInterface;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -18,6 +19,7 @@ class Client
   private $_token;
   private $_account;
   private $_payment;
+  private $_transaction;
 
   function __construct($api_key, $api_secret, $base_url, $logger = null)
   {
@@ -76,4 +78,12 @@ class Client
     return $this->_payment;
   }
 
+  function getTransaction()
+  {
+    if(empty($this->_transaction))
+    {
+      $this->_transaction = new TransactionInterface($this->_client);
+    }
+    return $this->_transaction;
+  }
 }

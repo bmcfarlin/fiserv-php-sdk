@@ -6,6 +6,7 @@
   include_once(__DIR__ . '/Resources/Token/TokenInterface.php');
   include_once(__DIR__ . '/Resources/Account/AccountInterface.php');
   include_once(__DIR__ . '/Resources/Payment/PaymentInterface.php');
+  include_once(__DIR__ . '/Resources/Transaction/TransactionInterface.php');
 
   include_once(__DIR__ . '/RestClient.php');
   include_once(__DIR__ . '/Client.php');
@@ -521,6 +522,33 @@
   }else{
     print("payment->create json is null\n");
   }
+
+  /************************
+  *  Get Transaction
+  ************************/
+
+  $data = [
+    'merchant_transaction_id' => $merchant_transaction_id
+  ];
+  $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+  print("TRANSACTION_GET\n");
+  print("============\n");
+  print("REQUEST\n$json\n");
+
+  $json = $client->transaction->get($merchant_transaction_id);
+  if($json){
+    $item = json_decode($json);
+    if($item){
+      $json = json_encode($item, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+      print("RESPONSE:\n$json\n");
+    }else{
+      print("INVALID JSON\n$json\n");
+      die;
+    }
+  }else{
+    print("transaction->get json is null\n");
+  }
+
 
   function show_globals(){
     $items = $GLOBALS;
